@@ -613,3 +613,12 @@ impl From<Entry> for UpdatePlace {
         }
     }
 }
+
+#[derive(Serialize, Deserialize)]
+#[cfg_attr(feature = "extra-derive", derive(Debug, Clone, PartialEq))]
+pub struct Error {
+    /// HTTP status code
+    pub status: u16,
+    /// Error message
+    pub message: String,
+}
