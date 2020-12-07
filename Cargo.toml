@@ -22,7 +22,7 @@ members = [
   "ofdb-entities",
   "ofdb-gateways",
 ]
-exclude = [ "ofdb-app-clearance" ]
+exclude = [ "ofdb-app", "ofdb-app-clearance" ]
 
 [dependencies]
 anyhow = "*"
@@ -71,10 +71,12 @@ ofdb-entities = { version = "*", features = ["builders"] }
 walkdir = "2"
 
 [features]
-default = ["frontend", "email", "clearance"]
+default = ["frontend", "email", "clearance", "app"]
+
+app = []
+clearance = []
 email = []
 frontend = ["maud"]
-clearance = []
 
 [profile.release]
 lto = true

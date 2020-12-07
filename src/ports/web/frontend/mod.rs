@@ -33,6 +33,9 @@ const CLEARANCE_HTML: &str = include_str!("../../../../ofdb-app-clearance/index.
 const CLEARANCE_JS: &str = include_str!("../../../../ofdb-app-clearance/pkg/clearance.js");
 const CLEARANCE_WASM: &[u8] =
     include_bytes!("../../../../ofdb-app-clearance/pkg/clearance_bg.wasm");
+const APP_HTML: &str = include_str!("../../../../ofdb-app/index.html");
+const APP_JS: &str = include_str!("../../../../ofdb-app/pkg/ofdb_app.js");
+const APP_WASM: &[u8] = include_bytes!("../../../../ofdb-app/pkg/ofdb_app_bg.wasm");
 
 type Result<T> = std::result::Result<T, AppError>;
 
@@ -64,6 +67,21 @@ pub fn get_clearance_js() -> JavaScript<&'static str> {
 #[get("/pkg/clearance_bg.wasm")]
 pub fn get_clearance_wasm() -> Content<&'static [u8]> {
     Content(ContentType::WASM, CLEARANCE_WASM)
+}
+
+#[get("/app.html")]
+pub fn get_app_html() -> Html<&'static str> {
+    Html(APP_HTML)
+}
+
+#[get("/pkg/ofdb_app.js")]
+pub fn get_app_js() -> JavaScript<&'static str> {
+    JavaScript(APP_JS)
+}
+
+#[get("/pkg/ofdb_app_bg.wasm")]
+pub fn get_app_wasm() -> Content<&'static [u8]> {
+    Content(ContentType::WASM, APP_WASM)
 }
 
 #[get("/search?<q>&<limit>")]
@@ -384,6 +402,9 @@ pub fn routes() -> Vec<Route> {
         get_clearance_html,
         get_clearance_js,
         get_clearance_wasm,
+        get_app_html,
+        get_app_js,
+        get_app_wasm,
         get_index_user,
         get_index,
         get_index_html,
