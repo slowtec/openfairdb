@@ -9,7 +9,7 @@ repository = "https://github.com/kartevonmorgen/openfairdb"
 edition = "2018"
 
 [dependencies]
-chrono = { version = "0.4", features = ["serde"] }
+chrono = { version = "0.4", default-features = false, features = ["serde"] }
 serde = { version = "1", features = ["derive"] }
 
 [dependencies.ofdb-entities]

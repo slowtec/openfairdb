@@ -10,7 +10,7 @@ edition = "2018"
 
 [dependencies]
 bs58 = "0.3"
-chrono = "0.4"
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
 itertools = "0.9"
 num-derive = "0.3"
 num-traits = "0.2"
@@ -25,7 +25,7 @@ thiserror = "1"
 default = []
 builders = []
 rusturl = ["url"]
-wasm-bindgen = ["uuid/wasm-bindgen"]
+wasm-bindgen = ["uuid/wasm-bindgen", "chrono/wasmbind"]
 
 [dev-dependencies]
 rand = "0.7"
