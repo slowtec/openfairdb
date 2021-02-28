@@ -484,7 +484,6 @@ version = "0.0.0"
 dependencies = [
  "difference",
  "ofdb-boundary",
- "ofdb-entities",
  "ofdb-seed",
  "seed",
  "web-sys",
@@ -517,11 +516,9 @@ dependencies = [
 [[package]]
 name = "ofdb-seed"
 version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a75d7c83296d3b493069a9edc5eba575832683077daf3752c57d9e0dbf4e6352"
+source = "git+https://github.com/kartevonmorgen/ofdb-seed#001319991f57d938810c68bce50d76f27b9af093"
 dependencies = [
  "ofdb-boundary",
- "ofdb-entities",
  "percent-encoding",
  "seed",
  "web-sys",

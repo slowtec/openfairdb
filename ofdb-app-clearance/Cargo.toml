@@ -10,7 +10,6 @@ crate-type = ["cdylib"]
 
 [dependencies]
 ofdb-boundary = { version = "*", features = ["extra-derive"] }
-ofdb-entities = "*"
 ofdb-seed = "*"
 seed = "*"
 difference = "*"
@@ -19,6 +18,7 @@ web-sys = { version = "*", features = ["HtmlFormElement"] }
 [patch.crates-io]
 ofdb-boundary = { path = "../ofdb-boundary" }
 ofdb-entities = { path = "../ofdb-entities" }
+ofdb-seed = { git = "https://github.com/kartevonmorgen/ofdb-seed" }
 
 [profile.release]
 lto = true

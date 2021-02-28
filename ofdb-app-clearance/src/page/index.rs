@@ -1,7 +1,6 @@
 use crate::api;
 use difference::{Changeset, Difference};
-use ofdb_boundary::ClearanceForPlace;
-use ofdb_entities::{place::PlaceHistory, place::PlaceRevision};
+use ofdb_boundary::{ClearanceForPlace, MapPoint, PlaceRevision};
 use ofdb_seed::Api;
 use seed::{prelude::*, *};
 use std::collections::HashMap;
@@ -86,7 +85,7 @@ pub fn view(mdl: &Mdl) -> Node<Msg> {
         let title_cs = changeset(lastrev, currrev, |r| r.title.clone());
         let desc_cs = changeset(lastrev, currrev, |r| r.description.clone());
         let location_cs = changeset(lastrev, currrev, |r| {
-            let pos = r.location.pos;
+            let pos = MapPoint::from(r.location.latlon);
             let addr = &r.location.address;
             format!(
                 r#"
@@ -97,17 +96,13 @@ pub fn view(mdl: &Mdl) -> Node<Msg> {
                 {country}<br>
                 {state}
                 "#,
-                lat = pos.lat(),
-                lon = pos.lng(),
-                street = addr.clone().map(|a| a.street).flatten().unwrap_or_default(),
-                zip = addr.clone().map(|a| a.zip).flatten().unwrap_or_default(),
-                city = addr.clone().map(|a| a.city).flatten().unwrap_or_default(),
-                country = addr
-                    .clone()
-                    .map(|a| a.country)
-                    .flatten()
-                    .unwrap_or_default(),
-                state = addr.clone().map(|a| a.state).flatten().unwrap_or_default(),
+                lat = pos.lat,
+                lon = pos.lng,
+                street = addr.street.clone().unwrap_or_default(),
+                zip = addr.zip.clone().unwrap_or_default(),
+                city = addr.city.clone().unwrap_or_default(),
+                country = addr.country.clone().unwrap_or_default(),
+                state = addr.state.clone().unwrap_or_default(),
             )
         });
         let contact_cs = changeset(lastrev, currrev, |r| {
@@ -117,16 +112,8 @@ pub fn view(mdl: &Mdl) -> Node<Msg> {
                 {email}<br>
                 {phone}
                 "#,
-                email = c
-                    .clone()
-                    .map(|c| c.email.map(String::from))
-                    .flatten()
-                    .unwrap_or_default(),
-                phone = c
-                    .clone()
-                    .map(|c| c.phone.map(String::from))
-                    .flatten()
-                    .unwrap_or_default(),
+                email = c.email.clone().unwrap_or_default(),
+                phone = c.phone.clone().unwrap_or_default(),
             )
         });
         let opening_cs = changeset(lastrev, currrev, |r| {
@@ -149,24 +136,9 @@ pub fn view(mdl: &Mdl) -> Node<Msg> {
                 {image}<br>
                 {imagehref}
                 "#,
-                homepage = l
-                    .clone()
-                    .map(|l| l.homepage)
-                    .flatten()
-                    .map(|h| h.into_string())
-                    .unwrap_or_default(),
-                image = l
-                    .clone()
-                    .map(|l| l.image)
-                    .flatten()
-                    .map(|h| h.into_string())
-                    .unwrap_or_default(),
-                imagehref = l
-                    .clone()
-                    .map(|l| l.image_href)
-                    .flatten()
-                    .map(|h| h.into_string())
-                    .unwrap_or_default(),
+                homepage = l.homepage.clone().unwrap_or_default(),
+                image = l.image.clone().unwrap_or_default(),
+                imagehref = l.image_href.clone().unwrap_or_default(),
             )
         });
         let tags_cs = changeset_split(lastrev, currrev, "\n", |r| r.tags.join("<br>\n"));
@@ -197,12 +169,10 @@ pub fn view(mdl: &Mdl) -> Node<Msg> {
                 } else {
                     String::new()
                 };
-                let center = currrev.location.pos;
+                let center = MapPoint::from(currrev.location.latlon);
                 let href = format!(
                     "https://kartevonmorgen.org/#/?entry={}&center={},{}&zoom=15.00",
-                    id,
-                    center.lat(),
-                    center.lng()
+                    id, center.lat, center.lng
                 );
                 div![table![
                     C!["details-table"],
@@ -308,31 +278,8 @@ pub fn diffy_last<Ms>(cs: &Changeset) -> Node<Ms> {
 }
 
 pub async fn get_pending_clearances_full(api_token: String) -> Option<Msg> {
-    let api = Api::new(api::API_ROOT.into());
-    match api.get_places_clearance_with_api_token(&api_token).await {
-        Ok(pend) => {
-            let mut rezz = Vec::new();
-            for i in pend {
-                match api
-                    .get_place_history_with_api_token(&api_token, &i.place_id)
-                    .await
-                {
-                    Ok(ph) => {
-                        let ph = PlaceHistory::from(ph);
-                        rezz.push(api::PlaceClearance {
-                            pending: i,
-                            history: ph,
-                            expanded: false,
-                        });
-                    }
-                    Err(err) => {
-                        error!(err);
-                        return None;
-                    }
-                }
-            }
-            Some(Msg::GotPendingClearancesFull(rezz))
-        }
+    match api::get_pending_clearances_full(&api_token).await {
+        Ok(rezz) => Some(Msg::GotPendingClearancesFull(rezz)),
         Err(err) => {
             error!(err);
             if let FetchError::StatusError(Status { code, .. }) = err {

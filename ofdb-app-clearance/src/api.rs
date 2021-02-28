@@ -1,5 +1,6 @@
-use ofdb_boundary::PendingClearanceForPlace;
-use ofdb_entities::place::{PlaceHistory, PlaceRevision};
+use ofdb_boundary::{PendingClearanceForPlace, PlaceHistory, PlaceRevision};
+use ofdb_seed::Api;
+use seed::prelude::*;
 
 pub const API_ROOT: &str = "/api";
 
@@ -35,4 +36,24 @@ impl PlaceClearance {
             &self.current_rev().title
         }
     }
+}
+
+pub async fn get_pending_clearances_full(
+    api_token: &str,
+) -> Result<Vec<PlaceClearance>, FetchError> {
+    let api = Api::new(API_ROOT.into());
+    let pending_clearances = api.get_places_clearance_with_api_token(api_token).await?;
+    let mut rezz = Vec::new();
+    for pending in pending_clearances {
+        let ph = api
+            .get_place_history_with_api_token(&api_token, &pending.place_id)
+            .await?;
+        let history = PlaceHistory::from(ph);
+        rezz.push(PlaceClearance {
+            pending,
+            history,
+            expanded: false,
+        });
+    }
+    Ok(rezz)
 }
