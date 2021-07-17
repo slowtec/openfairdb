@@ -57,6 +57,7 @@ rocket_contrib = "*"
 rocket_cors = "*"
 serde = { version = "*", features = ["derive"] }
 serde_json = "*"
+snailquote = "0.3.0"
 strum = "0.21"
 tantivy = "0.13"
 time = "0.1"

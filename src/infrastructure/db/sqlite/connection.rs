@@ -7,6 +7,7 @@ use diesel::{
     prelude::{Connection as DieselConnection, *},
     result::{DatabaseErrorKind, Error as DieselError},
 };
+use snailquote::escape;
 use std::result;
 
 type Result<T> = result::Result<T, RepoError>;
@@ -756,10 +757,20 @@ impl PlaceRepo for SqliteConnection {
         // that is required to filter the aggregated column.
         let mut sql = "SELECT tag, COUNT(*) as count \
                        FROM place_revision_tag \
-                       WHERE parent_rowid IN \
+                       WHERE {like_condition} parent_rowid IN \
                        (SELECT rowid FROM place_revision WHERE (parent_rowid, rev) IN (SELECT rowid, current_rev FROM place) AND current_status > 0) \
                        GROUP BY tag"
-            .to_string();
+                       .to_string();
+            
+
+        let mut like_condition = "".to_string();
+        if let Some(like) = &params.like {
+            like_condition = format!("tag LIKE \"%{}%\" AND ", escape(like));
+        }
+
+        sql = sql.replace("{like_condition}", &like_condition[..]);
+
+
         if params.min_count.is_some() || params.max_count.is_some() {
             if let Some(min_count) = params.min_count {
                 sql.push_str(&format!(" HAVING count>={}", min_count));

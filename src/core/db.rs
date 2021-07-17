@@ -12,10 +12,11 @@ use anyhow::Result as Fallible;
 
 type Result<T> = std::result::Result<T, RepoError>;
 
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Hash)]
 pub struct MostPopularTagsParams {
     pub min_count: Option<u64>,
     pub max_count: Option<u64>,
+    pub like:  Option<String>
 }
 
 #[derive(Clone, Debug)]

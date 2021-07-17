@@ -208,6 +208,12 @@ paths:
           schema:
             type: integer
             format: int64
+        - name: like
+          in: query
+          required: false
+          description: Tags should contain this string
+          schema:
+            type: string
         - $ref: '#/components/parameters/PaginationLimit'
         - $ref: '#/components/parameters/PaginationOffset'
         - name: max_cache_age

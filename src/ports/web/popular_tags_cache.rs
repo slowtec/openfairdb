@@ -33,7 +33,7 @@ impl PopularTagsCache {
         pagination: &Pagination,
         max_cache_age: Duration,
     ) -> Result<Vec<TagFrequency>> {
-        let cached_results = self.read().get(&(*params, *pagination)).cloned();
+        let cached_results = self.read().get(&(params.clone(), *pagination)).cloned();
         if let Some((created_at, data)) = cached_results {
             let age_in_seconds = (Utc::now() - created_at).num_seconds() as u64;
             if age_in_seconds < max_cache_age.as_secs() {
@@ -55,7 +55,7 @@ impl PopularTagsCache {
             .map(Into::into)
             .collect::<Vec<_>>();
         let mut cache = self.write();
-        cache.insert((*params, *pagination), (Utc::now(), results.clone()));
+        cache.insert((params.clone(), *pagination), (Utc::now(), results.clone()));
         Ok(results)
     }
 
